@@ -386,3 +386,92 @@ StreamZip([homeGamesStream, awayGamesStream]).map((snapshots) {
 - Try-catch blocks around game parsing
 - Logs errors without crashing
 - Returns empty list or null on errors
+
+### Team Providers (`lib/providers/team_provider.dart`)
+
+Riverpod providers for team-related data, implementing reactive data extraction and transformation logic.
+
+#### Providers:
+
+**1. `teamInfoProvider` - Team Information**
+- **Type**: `FutureProvider.family<Team?, int>`
+- **Data Extraction Logic**:
+  1. Watches `firestoreServiceProvider` to get service instance
+  2. Calls `getTeamInfo(teamId)` which queries games collection
+  3. Extracts team data from first matching game (homeTeam or awayTeam)
+- **Returns**: `Future<Team?>` - Team info or null if not found
+- **Use Case**: Display team name and logo on team detail page
+
+**2. `teamGamesProvider` - All Team Games**
+- **Type**: `StreamProvider.family<List<Game>, TeamGamesParams>`
+- **Parameters**: `TeamGamesParams` (teamId + optional season)
+- **Data Extraction Logic**:
+  1. Watches `firestoreServiceProvider`
+  2. Calls `getTeamGames(teamId, season)` which:
+     - Queries home games and away games separately
+     - Merges streams using `StreamZip`
+     - Deduplicates by `gameId`
+     - Filters by season if provided
+  3. Returns real-time stream of all team games
+- **Returns**: `Stream<List<Game>>` - Real-time updates when games change
+- **Use Case**: Base data for calculating team record
+
+**3. `teamRecordProvider` - Team Season Record**
+- **Type**: `Provider.family<AsyncValue<TeamRecord?>, TeamGamesParams>`
+- **Data Transformation Logic**:
+  1. **Dependency**: Watches `teamGamesProvider(params)` to get all games
+  2. **Filtering**: Extracts only final games (`status == final_`)
+  3. **Calculation**: Calls `TeamRecord.fromGames(finalGames, teamId)` to:
+     - Compare scores to determine wins/losses
+     - Identify OT losses from `gameOutcome` or `periodDescriptor`
+     - Calculate points (wins * 2 + ot)
+  4. **State Management**: Wraps result in `AsyncValue` to handle loading/error states
+- **Returns**: `AsyncValue<TeamRecord?>` - Record with loading/error/data states
+- **Key Feature**: **Derived data** - automatically recalculates when games update
+- **Use Case**: Display season record on team detail page
+
+**4. `teamRecentGamesProvider` - Recent 5 Games**
+- **Type**: `StreamProvider.family<List<Game>, int>`
+- **Data Extraction Logic**:
+  1. Watches `firestoreServiceProvider`
+  2. Calls `getTeamRecentGames(teamId)` which:
+     - Queries home games (limit 5, sorted desc)
+     - Queries away games (limit 5, sorted desc)
+     - Merges and deduplicates
+     - Re-sorts and takes top 5
+  3. Returns real-time stream of recent games
+- **Returns**: `Stream<List<Game>>` - Real-time updates
+- **Use Case**: Display recent games list on team detail page
+
+#### Key Implementation Patterns:
+
+**Provider Dependency Chain:**
+```
+teamGamesProvider (raw games)
+    ↓
+teamRecordProvider (derived: filters + calculates)
+```
+
+**Data Flow for Team Record:**
+1. `teamGamesProvider` → Returns all games (scheduled, live, final)
+2. `teamRecordProvider` watches `teamGamesProvider`
+3. Filters: `games.where((g) => g.status == GameStatus.final_)`
+4. Transforms: `TeamRecord.fromGames(finalGames, teamId)`
+5. Wraps: `AsyncValue.data(record)` for UI consumption
+
+**AsyncValue State Handling:**
+- Uses `AsyncValue.when()` to handle three states:
+  - `data`: Transform and return calculated record
+  - `loading`: Return `AsyncValue.loading()`
+  - `error`: Propagate error state
+- Ensures UI always receives consistent state structure
+
+**Parameter Class (`TeamGamesParams`):**
+- Encapsulates `teamId` and optional `season` in single object
+- Implements `==` and `hashCode` for proper Riverpod caching
+- Allows Riverpod to correctly cache and invalidate providers based on parameters
+
+**Real-time Updates:**
+- All `StreamProvider` instances automatically update when Firestore data changes
+- `teamRecordProvider` automatically recalculates when `teamGamesProvider` updates
+- No manual refresh needed - reactive data flow
