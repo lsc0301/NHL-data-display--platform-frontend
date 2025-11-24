@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "32991853700",
+    "project_id": "nhl-data-display-platform",
+    "storage_bucket": "nhl-data-display-platform.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:32991853700:android:146a7bcbe3b99b17ae56d1",
+        "android_client_info": {
+          "package_name": "com.example.nhl_data_display_platform_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSPJGjdEVembo7f-KSQcdYZ409hHh2E2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
