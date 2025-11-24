@@ -14,7 +14,7 @@ This project is a Flutter mobile application designed to display NHL game data i
 
 - **Game Detail Screen**: Provides full game information including detailed team stats, game timeline, and all relevant match data.
 
-- **Live Game Filter**: Allows users to filter and focus on games that are currently in progress.
+- **Game Filtering**: Allows users to filter games by status (All, Live, Scheduled, Final) with real-time updates.
 
 - **Robust State Management**: Handles loading states, error states, and missing data gracefully to ensure a smooth user experience.
 
@@ -225,11 +225,18 @@ Main screen displaying today's NHL games in a list format.
   - Live games: Display score (should have score)
   - Final games: Display score (should have score)
 - **State Management** (using Riverpod):
-  - Uses `ConsumerWidget` with `ref.watch(todayGamesListProvider)` to access data
+  - Uses `ConsumerWidget` with `ref.watch(filteredGamesProvider)` to access filtered game data
   - Uses `AsyncValue.when()` to handle different states:
     - Loading state: Shows `LoadingIndicator`
     - Error state: Shows `ErrorDisplayWidget` with user-friendly error messages
-    - Empty state: Shows `EmptyStateWidget` with "No games today" message
+    - Empty state: Shows `EmptyStateWidget` with context-aware messages based on filter
+- **Game Filtering**: Filter games by status using the filter button in AppBar:
+  - All Games (default)
+  - Live Only (games in progress)
+  - Scheduled Only (upcoming games)
+  - Final Only (completed games)
+  - Filter indicator bar shows current filter with clear option
+  - Empty state messages adapt to selected filter
 - **Data Filtering**: Filters games to only show today's games (based on local timezone)
 - **Sorting**: Games are automatically sorted by start time (handled by Firestore query)
 
@@ -270,5 +277,26 @@ Detailed view screen that displays comprehensive information about a selected ga
 **Components:**
 - `GameDetailScreen` - Main detail screen widget
 - Various helper methods for building different sections of game information
+
+## State Management
+
+The project uses Riverpod for state management, providing reactive data streams and efficient state updates.
+
+### Providers (`lib/providers/`)
+
+**Firestore Provider** (`firestore_provider.dart`)
+- `firestoreServiceProvider` - Provides FirestoreService instance
+- `firestoreProvider` - Provides FirebaseFirestore instance
+
+**Games Provider** (`games_provider.dart`)
+- `todayGamesStreamProvider` - Stream of today's games from Firestore
+- `gameByIdStreamProvider` - Stream of a specific game by ID (family provider)
+- `todayGamesListProvider` - Processed list of today's games with filtering
+
+**Game Filter Provider** (`game_filter_provider.dart`)
+- `GameFilter` enum - Filter options (all, live, scheduled, final_)
+- `gameFilterProvider` - NotifierProvider managing current filter state
+- `filteredGamesProvider` - Provider that applies selected filter to game list
+- Real-time filtering: Updates automatically when filter changes or game status updates
 
 
