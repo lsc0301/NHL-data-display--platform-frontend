@@ -325,3 +325,64 @@ Team detail page implementation to display team information, season record, and 
 - Handles null scores gracefully
 - Identifies overtime and shootout losses correctly
 - Follows NHL scoring system (2-1-0 point system)
+
+### Firestore Service Extension (`lib/services/firestore_service.dart`)
+
+Extended Firestore service to support team-related queries. Since Firestore doesn't support OR queries, the implementation uses a **dual-query merge strategy**.
+
+#### Methods Added:
+
+**1. `getTeamInfo(int teamId)` - Get Team Information**
+- **Logic**: Queries games collection twice (homeTeam.id and awayTeam.id)
+- **Fallback Strategy**: First tries homeTeam query, if not found, tries awayTeam query
+- **Returns**: `Future<Team?>` - Team data from first matching game
+- **Use Case**: Extract team name, logo, and other info from any game containing the team
+
+**2. `getTeamGames(int teamId, int? season)` - Get All Team Games**
+- **Core Challenge**: Firestore doesn't support `WHERE homeTeam.id = X OR awayTeam.id = X`
+- **Solution**: 
+  1. Query home games: `where('homeTeam.id', isEqualTo: teamId)`
+  2. Query away games: `where('awayTeam.id', isEqualTo: teamId)`
+  3. **Merge streams** using `StreamZip` from `async` package
+  4. **Deduplicate** by `gameId` (same game appears in both queries)
+  5. **Filter by season** if provided
+- **Returns**: `Stream<List<Game>>` - Real-time stream of all team games
+- **Use Case**: Calculate season record from all final games
+
+**3. `getTeamRecentGames(int teamId)` - Get Recent 5 Games**
+- **Logic**:
+  1. Query home games (limit 5, sorted by startTime desc)
+  2. Query away games (limit 5, sorted by startTime desc)
+  3. **Merge streams** using `StreamZip`
+  4. **Deduplicate** by `gameId`
+  5. **Re-sort** merged results by `startTime` descending
+  6. **Take top 5** from merged and sorted list
+- **Why Re-sort**: Each query returns top 5, but merged list may have different ordering
+- **Returns**: `Stream<List<Game>>` - Real-time stream of last 5 games
+- **Use Case**: Display recent games list on team page
+
+#### Key Implementation Details:
+
+**Stream Merging Pattern:**
+```dart
+StreamZip([homeGamesStream, awayGamesStream]).map((snapshots) {
+  // Merge documents from both queries
+  // Deduplicate by gameId
+  // Apply additional filtering/sorting
+})
+```
+
+**Deduplication Strategy:**
+- Uses `Map<int, Game>` with `gameId` as key
+- Automatically handles duplicates (last occurrence wins)
+- Ensures each game appears only once in result
+
+**Real-time Updates:**
+- All methods use `snapshots(includeMetadataChanges: true)`
+- Supports offline cache (Firestore default behavior)
+- Automatically updates when data changes in Firestore
+
+**Error Handling:**
+- Try-catch blocks around game parsing
+- Logs errors without crashing
+- Returns empty list or null on errors

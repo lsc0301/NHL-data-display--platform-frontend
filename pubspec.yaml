@@ -50,6 +50,9 @@ dependencies:
   # State management
   flutter_riverpod: ^3.0.3
 
+  # Stream utilities
+  async: ^2.12.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
