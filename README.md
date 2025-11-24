@@ -505,3 +505,21 @@ Team detail page UI displaying team information, current season record, and rece
 - Season-aware record calculation (automatically filters by current season)
 - Context-aware game display (shows team's perspective)
 - Comprehensive error handling (loading, error, empty states)
+
+### Navigation Integration (`lib/screens/game_detail_screen.dart`)
+
+Navigation from game detail page to team detail page.
+
+#### Implementation:
+
+**Team Name Click Navigation:**
+- Modified `_buildTeamRow` method to make team names clickable
+- Wrapped team name in `InkWell` widget with `onTap` handler
+- Navigates to `TeamDetailScreen(teamId: team.id)` when clicked
+- Team name styled with blue color and underline to indicate clickability
+- Applied to both home and away team names
+
+#### Key Features:
+- Seamless navigation between game and team detail pages
+- Visual indication (blue, underlined text) that team names are clickable
+- Maintains navigation stack for back button functionality

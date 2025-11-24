@@ -9,6 +9,7 @@ import '../providers/games_provider.dart';
 import '../widgets/common/loading_indicator.dart';
 import '../widgets/common/error_widget.dart';
 import '../widgets/common/empty_state_widget.dart';
+import 'team_detail_screen.dart';
 
 class GameDetailScreen extends ConsumerWidget {
   final int gameId;
@@ -27,7 +28,7 @@ class GameDetailScreen extends ConsumerWidget {
             return const EmptyStateWidget(message: 'Game not found');
           }
 
-          return _buildGameContent(game);
+          return _buildGameContent(context, game);
         },
         loading: () => const LoadingIndicator(),
         error: (error, stackTrace) => ErrorDisplayWidget(error: error),
@@ -35,7 +36,7 @@ class GameDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGameContent(Game game) {
+  Widget _buildGameContent(BuildContext context, Game game) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -43,7 +44,7 @@ class GameDetailScreen extends ConsumerWidget {
         children: [
           _buildStatusBadge(game.status),
           const SizedBox(height: 24),
-          _buildTeamsSection(game),
+          _buildTeamsSection(context, game),
           const SizedBox(height: 24),
           if (game.startTime != null) _buildStartTime(game.startTime!),
           if (game.season != null ||
@@ -137,7 +138,7 @@ class GameDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTeamsSection(Game game) {
+  Widget _buildTeamsSection(BuildContext context, Game game) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -145,6 +146,7 @@ class GameDetailScreen extends ConsumerWidget {
         child: Column(
           children: [
             _buildTeamRow(
+              context: context,
               label: 'Away',
               team: game.awayTeam,
               status: game.status,
@@ -156,6 +158,7 @@ class GameDetailScreen extends ConsumerWidget {
             ],
             const Divider(height: 32),
             _buildTeamRow(
+              context: context,
               label: 'Home',
               team: game.homeTeam,
               status: game.status,
@@ -220,6 +223,7 @@ class GameDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildTeamRow({
+    required BuildContext context,
     required String label,
     required Team team,
     required GameStatus status,
@@ -248,11 +252,23 @@ class GameDetailScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                team.name,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TeamDetailScreen(teamId: team.id),
+                    ),
+                  );
+                },
+                child: Text(
+                  team.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
               if (team.abbrev.isNotEmpty)

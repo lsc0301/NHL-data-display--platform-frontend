@@ -125,18 +125,22 @@ class FirestoreService {
 
   /// Get recent games for a team (last 5 games)
   Stream<List<Game>> getTeamRecentGames(int teamId) {
+    // Remove orderBy to avoid requiring composite index
+    // We'll sort in client-side instead
     final homeGamesStream = _firestore
         .collection(_gamesCollection)
         .where('homeTeam.id', isEqualTo: teamId)
-        .orderBy('startTime', descending: true)
-        .limit(5)
+        .limit(
+          50,
+        ) // Get more games to ensure we have enough after deduplication
         .snapshots(includeMetadataChanges: true);
 
     final awayGamesStream = _firestore
         .collection(_gamesCollection)
         .where('awayTeam.id', isEqualTo: teamId)
-        .orderBy('startTime', descending: true)
-        .limit(5)
+        .limit(
+          50,
+        ) // Get more games to ensure we have enough after deduplication
         .snapshots(includeMetadataChanges: true);
 
     return StreamZip([homeGamesStream, awayGamesStream]).map((snapshots) {
@@ -163,6 +167,7 @@ class FirestoreService {
         uniqueGames[game.gameId] = game;
       }
 
+      // Sort by startTime descending (most recent first)
       final sortedGames =
           uniqueGames.values.toList()..sort((a, b) {
             if (a.startTime == null && b.startTime == null) return 0;
@@ -171,6 +176,7 @@ class FirestoreService {
             return b.startTime!.compareTo(a.startTime!);
           });
 
+      // Take top 5 most recent games
       return sortedGames.take(5).toList();
     });
   }
