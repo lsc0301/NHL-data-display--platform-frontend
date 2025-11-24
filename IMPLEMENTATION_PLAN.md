@@ -55,8 +55,7 @@
   - 游戏状态（scheduled/live/final）
   - 开始时间
   - 其他可能字段（使用可选类型处理缺失字段）
-- [ ] 实现 `fromFirestore` 和 `toFirestore` 方法
-- [ ] 实现 `fromJson` 和 `toJson` 方法（用于调试）
+- [x] 实现 `fromFirestore` 和 `toFirestore` 方法
 
 #### 2.2 创建枚举类型
 - [ ] 创建 `lib/models/game_status.dart`

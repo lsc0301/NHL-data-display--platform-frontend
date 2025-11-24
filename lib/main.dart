@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'dart:developer';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  log('Initializing Firebase...');
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  log('Firebase initialized successfully');
+  log('Running app...');
   runApp(const MyApp());
+  log('App running successfully');
 }
 
 class MyApp extends StatelessWidget {
