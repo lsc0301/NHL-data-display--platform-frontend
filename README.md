@@ -26,6 +26,43 @@ This project is a Flutter mobile application designed to display NHL game data i
 
 This project demonstrates skills in mobile app development, real-time data synchronization, state management, offline-first architecture, and user experience design, showcasing a practical frontend engineering implementation.
 
+# How to run this project
+
+## Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd NHL_data_display_platform_frontend
+```
+
+### 2. Install Dependencies
+
+```bash
+flutter pub get
+```
+
+### 3. Run the Application
+
+**For Android:**
+```bash
+flutter run
+```
+Make sure you have an Android emulator running or a physical device connected.
+
+**For iOS:**
+```bash
+flutter run
+```
+Make sure you have an iOS simulator running or a physical device connected.
+
+### 4. Backend Service (Recommended)
+
+For full functionality, it is recommended to run the Node.js backend service simultaneously. The backend service is responsible for fetching data from the NHL API and writing it to Firestore.
+
+Please refer to the backend project's README for detailed instructions on how to run the backend service.
+
 ## Setup & Build
 
 ### Step 1: Initialize Project and Setup Git Repository
