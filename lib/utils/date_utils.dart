@@ -14,7 +14,8 @@ class DateUtils {
 
     try {
       final dateTime = DateTime.parse(isoString);
-      return '${dateTime.year}-${_padZero(dateTime.month)}-${_padZero(dateTime.day)}';
+      final localTime = dateTime.toLocal();
+      return '${localTime.year}-${_padZero(localTime.month)}-${_padZero(localTime.day)}';
     } catch (e) {
       return null;
     }

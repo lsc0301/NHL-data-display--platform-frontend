@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../models/game.dart';
 import '../../models/game_status.dart';
+import '../../screens/game_detail_screen.dart';
 
 class GameCard extends StatelessWidget {
   final Game game;
@@ -12,41 +14,67 @@ class GameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStatusBadge(game.status),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: _buildTeamInfo(
-                    game.awayTeam.name,
-                    game.awayTeam.score,
-                    game.status,
-                  ),
-                ),
-                const Text('VS', style: TextStyle(fontSize: 16)),
-                Expanded(
-                  child: _buildTeamInfo(
-                    game.homeTeam.name,
-                    game.homeTeam.score,
-                    game.status,
-                    isHome: true,
-                  ),
-                ),
-              ],
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GameDetailScreen(gameId: game.gameId),
             ),
-            const SizedBox(height: 12),
-            if (game.startTime != null)
-              Text(
-                _formatStartTime(game.startTime!),
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildStatusBadge(game.status),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: _buildTeamInfo(
+                      game.awayTeam.name,
+                      game.awayTeam.score,
+                      game.status,
+                      logo: game.awayTeam.logo,
+                      label: 'Away',
+                    ),
+                  ),
+                  const Text('VS', style: TextStyle(fontSize: 16)),
+                  Expanded(
+                    child: _buildTeamInfo(
+                      game.homeTeam.name,
+                      game.homeTeam.score,
+                      game.status,
+                      logo: game.homeTeam.logo,
+                      isHome: true,
+                      label: 'Home',
+                    ),
+                  ),
+                ],
               ),
-          ],
+              const SizedBox(height: 12),
+              if (game.startTime != null)
+                Row(
+                  children: [
+                    Text(
+                      'Start time: ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      _formatStartTime(game.startTime!),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -98,11 +126,33 @@ class GameCard extends StatelessWidget {
     int? score,
     GameStatus status, {
     bool isHome = false,
+    String? label,
+    String? logo,
   }) {
     return Column(
       crossAxisAlignment:
           isHome ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
+        if (label != null)
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        if (label != null) const SizedBox(height: 2),
+        if (logo != null && logo.isNotEmpty)
+          Align(
+            alignment: isHome ? Alignment.centerRight : Alignment.centerLeft,
+            child: SizedBox(
+              width: 60,
+              height: 60,
+              child: _buildLogo(logo),
+            ),
+          ),
+        if (logo != null && logo.isNotEmpty) const SizedBox(height: 4),
         Text(
           teamName,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -134,6 +184,24 @@ class GameCard extends StatelessWidget {
       return DateFormat('MMM d, y • h:mm a').format(localTime);
     } catch (e) {
       return isoString;
+    }
+  }
+
+  Widget _buildLogo(String logoUrl) {
+    if (logoUrl.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.network(
+        logoUrl,
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) => const SizedBox.shrink(),
+      );
+    } else {
+      return Image.network(
+        logoUrl,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const SizedBox.shrink();
+        },
+      );
     }
   }
 }

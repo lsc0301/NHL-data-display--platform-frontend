@@ -232,3 +232,77 @@ Main screen displaying today's NHL games in a list format.
 **Components:**
 - `GamesListScreen` - Main screen widget
 - `GameCard` - Reusable card widget for displaying individual game information
+
+### Game Detail Screen (`lib/screens/game_detail_screen.dart`)
+
+Detailed view screen that displays comprehensive information about a selected game.
+
+**Features:**
+- **Navigation**: Accessible by tapping on any game card from the list screen
+- **Real-time Updates**: Uses `StreamBuilder` to listen to individual game data stream
+- **Comprehensive Data Display**: Shows all game fields including:
+  - Game status badge
+  - Home and away team information (name, score, logo, ID, place name)
+  - Start time (formatted date and time)
+  - Game information (season, game type, schedule state, neutral site)
+  - Venue information (name, timezone, UTC offset)
+  - Period information (current period number and type)
+  - Game outcome
+  - TV broadcasts (network, market, country)
+  - Radio links (for both teams)
+  - Winning players (goal scorer and goalie)
+  - Video links (condensed game, 3-min recap)
+  - Tickets link
+  - Game Center link
+  - Team odds (if available)
+- **State Management**:
+  - Loading state: Shows `LoadingIndicator`
+  - Error state: Shows `ErrorDisplayWidget` with error message
+  - Empty state: Shows `EmptyStateWidget` when game not found
+- **Logo Display**: Supports both SVG and image formats with proper error handling
+
+**Components:**
+- `GameDetailScreen` - Main detail screen widget
+- Various helper methods for building different sections of game information
+
+## Implementation Summary
+
+### Core Features Implemented
+
+✅ **Games List Screen**
+- Displays today's games with real-time updates
+- Shows team names, scores, game status, and start time
+- Games sorted by start time
+- Team logos displayed (SVG and image support)
+- Click navigation to detail screen
+
+✅ **Game Detail Screen**
+- Comprehensive display of all game and team data fields
+- Real-time updates for live score changes
+- Team logos, odds, and all metadata displayed
+- Proper handling of optional/missing fields
+
+✅ **Real-time Data Synchronization**
+- All data from Firestore using streams (`.snapshots()`)
+- Automatic UI updates when scores or game status changes
+- No manual refresh required
+
+✅ **State Management**
+- Loading states with `LoadingIndicator`
+- Error states with `ErrorDisplayWidget` (includes retry functionality)
+- Empty states with `EmptyStateWidget`
+- Graceful handling of missing/null fields (no crashes)
+
+✅ **UI Enhancements**
+- Team logos with SVG support (`flutter_svg` package)
+- Clear visual distinction between home and away teams
+- Status badges with color coding
+- Responsive card-based layout
+
+### Technical Implementation
+
+- **Data Models**: Complete type-safe models with null safety
+- **Firestore Integration**: Real-time streams for live updates
+- **Error Handling**: Try-catch blocks and null checks throughout
+- **Time Zone Support**: Local timezone display with UTC conversion for queries
+- **SVG Support**: Added `flutter_svg` package for NHL logo display
