@@ -160,3 +160,75 @@ Represents a complete NHL game with all associated data:
 - **Firestore Integration**: Complete serialization/deserialization methods for Firestore
 - **Score Handling**: Score field safely handles null values (games may not have scores yet)
 - **Multi-language Data Support**: The data model can receive and store multi-language data from Firestore (English and French), but the UI only displays English names. This ensures data completeness while maintaining a simple English-only interface.
+
+## Services & Utilities
+
+### Firestore Service (`lib/services/firestore_service.dart`)
+
+Service class that encapsulates all Firestore database operations for game data.
+
+**Methods:**
+- `getTodayGames()` - Returns a stream of today's games with real-time updates, sorted by start time
+  - Uses `Stream<QuerySnapshot>` for real-time listening
+  - Queries games where `startTime >= start of today` (in local timezone, converted to UTC)
+  - Automatically sorted by `startTime`
+  - Limits results to 100 games
+- `getGameById(int gameId)` - Returns a stream of a single game by gameId with real-time updates
+  - Handles data parsing errors gracefully
+  - Returns `null` if game not found or parsing fails
+
+**Features:**
+- Real-time data synchronization using Firestore streams
+- Automatic error handling for data parsing
+- Type-safe Game object conversion
+
+### Date Utilities (`lib/utils/date_utils.dart`)
+
+Utility class for date and time operations, with timezone support.
+
+**Methods:**
+- `getTodayDateString()` - Get today's date string in YYYY-MM-DD format (local timezone)
+- `extractDateFromIsoString(String?)` - Extract date string from ISO 8601 timestamp (local timezone)
+- `isToday(String?)` - Check if an ISO 8601 timestamp string is today (local timezone)
+- `getStartOfTodayUtc()` - Get start of today in local timezone, converted to UTC for Firestore queries
+- `getEndOfTodayUtc()` - Get end of today in local timezone, converted to UTC for Firestore queries
+
+**Features:**
+- Uses local timezone for "today" calculations (supports all timezones including EST, PST, etc.)
+- Converts to UTC for Firestore queries (since Firestore stores times in UTC)
+- Handles timezone conversions automatically
+
+## Screens
+
+### Games List Screen (`lib/screens/games_list_screen.dart`)
+
+Main screen displaying today's NHL games in a list format.
+
+**Features:**
+- **Real-time Updates**: Uses `StreamBuilder` to listen to Firestore data stream, automatically updates when data changes
+- **Game Cards**: Each game displayed as a card showing:
+  - Home team name and score
+  - Away team name and score
+  - Game status badge with color coding:
+    - Scheduled (blue)
+    - Live (green)
+    - Final (grey)
+    - Other (orange)
+  - Start time formatted in local timezone
+- **Score Display Logic**:
+  - Scheduled games: Display "-" (scores are null)
+  - Live games: Display score (should have score)
+  - Final games: Display score (should have score)
+- **State Management**:
+  - Loading state: Shows `CircularProgressIndicator`
+  - Error state: Shows user-friendly error messages with retry button
+    - Network errors: "Network error. Please check your connection."
+    - Permission errors: "Permission denied. Please check your Firestore rules."
+    - Other errors: Generic error message
+  - Empty state: Shows "No games today" message
+- **Data Filtering**: Filters games to only show today's games (based on local timezone)
+- **Sorting**: Games are automatically sorted by start time (handled by Firestore query)
+
+**Components:**
+- `GamesListScreen` - Main screen widget
+- `GameCard` - Reusable card widget for displaying individual game information

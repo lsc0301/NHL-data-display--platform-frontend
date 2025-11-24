@@ -69,17 +69,17 @@
 **目标**：封装 Firestore 数据访问逻辑
 
 #### 3.1 创建 Firestore 服务
-- [ ] 创建 `lib/services/firestore_service.dart`
-- [ ] 实现获取今天游戏的方法：
+- [x] 创建 `lib/services/firestore_service.dart`
+- [x] 实现获取今天游戏的方法：
   - 使用 `Stream<QuerySnapshot>` 实现实时监听
   - 查询条件：日期 = 今天
   - 按开始时间排序
-- [ ] 实现获取单个游戏详情的方法
-- [ ] 处理错误情况（网络错误、权限错误等）
+- [x] 实现获取单个游戏详情的方法
+- [ ] 处理错误情况（网络错误、权限错误等）- 将在 UI 层处理
 
 #### 3.2 日期工具
-- [ ] 创建 `lib/utils/date_utils.dart`
-- [ ] 实现获取"今天"日期的工具函数（考虑时区）
+- [x] 创建 `lib/utils/date_utils.dart`
+- [x] 实现获取"今天"日期的工具函数（考虑时区）
 
 **预计时间**：60-90 分钟
 
