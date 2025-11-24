@@ -475,3 +475,33 @@ teamRecordProvider (derived: filters + calculates)
 - All `StreamProvider` instances automatically update when Firestore data changes
 - `teamRecordProvider` automatically recalculates when `teamGamesProvider` updates
 - No manual refresh needed - reactive data flow
+
+### Team Detail Screen (`lib/screens/team_detail_screen.dart`)
+
+Team detail page UI displaying team information, current season record, and recent games.
+
+#### Data Consumption Logic:
+
+**Team Information:**
+- Watches `teamInfoProvider(teamId)` to get team name, logo, and abbreviation from games collection
+- Displays in header card with logo and team name
+
+**Current Season Record:**
+- Uses `DateUtils.getCurrentSeason()` to determine current NHL season (October-based logic)
+- Watches `teamRecordProvider(TeamGamesParams(teamId, season))` which:
+  - Gets all team games from `teamGamesProvider`
+  - Filters to final games only
+  - Calculates wins, losses, OT losses, and points using `TeamRecord.fromGames()`
+- Displays record statistics in card format
+
+**Recent Games:**
+- Watches `teamRecentGamesProvider(teamId)` to get last 5 games
+- For each game, determines if team is home or away
+- Displays opponent name (with "vs" or "@" prefix), date, status, and score
+- Game cards are clickable to navigate to `GameDetailScreen`
+
+#### Key Features:
+- Real-time updates via Firestore streams
+- Season-aware record calculation (automatically filters by current season)
+- Context-aware game display (shows team's perspective)
+- Comprehensive error handling (loading, error, empty states)

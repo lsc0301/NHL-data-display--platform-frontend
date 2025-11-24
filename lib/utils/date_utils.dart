@@ -45,6 +45,19 @@ class DateUtils {
     return endOfDay.toUtc();
   }
 
+  /// Get current season (e.g., 20252026)
+  /// NHL season typically runs from October to June
+  static int? getCurrentSeason() {
+    final now = DateTime.now();
+    final year = now.year;
+    // If current month is before October, use previous season
+    if (now.month < 10) {
+      return (year - 1) * 10000 + year;
+    } else {
+      return year * 10000 + (year + 1);
+    }
+  }
+
   static String _padZero(int value) {
     return value.toString().padLeft(2, '0');
   }
