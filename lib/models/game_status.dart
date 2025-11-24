@@ -1,4 +1,4 @@
-/// Game status enumeration
+/// Game status enum
 enum GameStatus {
   scheduled,
   live,

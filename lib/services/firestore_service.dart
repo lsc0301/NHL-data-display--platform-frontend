@@ -12,7 +12,8 @@ class FirestoreService {
   FirestoreService({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  /// Get stream of today's games, sorted by start time
+  /// Get today's games stream, sorted by start time
+  /// Uses offline cache when network unavailable
   Stream<QuerySnapshot<Map<String, dynamic>>> getTodayGames() {
     final startOfToday = DateUtils.getStartOfTodayUtc();
     return _firestore
@@ -23,16 +24,17 @@ class FirestoreService {
         )
         .orderBy('startTime')
         .limit(100)
-        .snapshots();
+        .snapshots(includeMetadataChanges: true);
   }
 
   /// Get game by gameId with real-time updates
+  /// Uses offline cache when network unavailable
   Stream<Game?> getGameById(int gameId) {
     return _firestore
         .collection(_gamesCollection)
         .where('gameId', isEqualTo: gameId)
         .limit(1)
-        .snapshots()
+        .snapshots(includeMetadataChanges: true)
         .map((snapshot) {
           if (snapshot.docs.isEmpty) return null;
           try {

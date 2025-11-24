@@ -179,8 +179,13 @@ Service class that encapsulates all Firestore database operations for game data.
 
 **Features:**
 - Real-time data synchronization using Firestore streams
+- **Offline Support**: Automatically uses cached data when network is unavailable
+  - Firestore persistence is enabled by default on Android and iOS
+  - Users can view previously loaded game data even when offline
+  - Cache is automatically updated when network connection is restored
 - Automatic error handling for data parsing
 - Type-safe Game object conversion
+- Includes metadata changes to detect cache vs server data
 
 ### Date Utilities (`lib/utils/date_utils.dart`)
 
@@ -205,7 +210,7 @@ Utility class for date and time operations, with timezone support.
 Main screen displaying today's NHL games in a list format.
 
 **Features:**
-- **Real-time Updates**: Uses `StreamBuilder` to listen to Firestore data stream, automatically updates when data changes
+- **Real-time Updates**: Uses Riverpod's `StreamProvider` to listen to Firestore data stream, automatically updates when data changes
 - **Game Cards**: Each game displayed as a card showing:
   - Home team name and score
   - Away team name and score
@@ -219,13 +224,12 @@ Main screen displaying today's NHL games in a list format.
   - Scheduled games: Display "-" (scores are null)
   - Live games: Display score (should have score)
   - Final games: Display score (should have score)
-- **State Management**:
-  - Loading state: Shows `CircularProgressIndicator`
-  - Error state: Shows user-friendly error messages with retry button
-    - Network errors: "Network error. Please check your connection."
-    - Permission errors: "Permission denied. Please check your Firestore rules."
-    - Other errors: Generic error message
-  - Empty state: Shows "No games today" message
+- **State Management** (using Riverpod):
+  - Uses `ConsumerWidget` with `ref.watch(todayGamesListProvider)` to access data
+  - Uses `AsyncValue.when()` to handle different states:
+    - Loading state: Shows `LoadingIndicator`
+    - Error state: Shows `ErrorDisplayWidget` with user-friendly error messages
+    - Empty state: Shows `EmptyStateWidget` with "No games today" message
 - **Data Filtering**: Filters games to only show today's games (based on local timezone)
 - **Sorting**: Games are automatically sorted by start time (handled by Firestore query)
 
@@ -239,7 +243,7 @@ Detailed view screen that displays comprehensive information about a selected ga
 
 **Features:**
 - **Navigation**: Accessible by tapping on any game card from the list screen
-- **Real-time Updates**: Uses `StreamBuilder` to listen to individual game data stream
+- **Real-time Updates**: Uses Riverpod's `StreamProvider.family` to listen to individual game data stream
 - **Comprehensive Data Display**: Shows all game fields including:
   - Game status badge
   - Home and away team information (name, score, logo, ID, place name)
@@ -255,54 +259,16 @@ Detailed view screen that displays comprehensive information about a selected ga
   - Tickets link
   - Game Center link
   - Team odds (if available)
-- **State Management**:
-  - Loading state: Shows `LoadingIndicator`
-  - Error state: Shows `ErrorDisplayWidget` with error message
-  - Empty state: Shows `EmptyStateWidget` when game not found
+- **State Management** (using Riverpod):
+  - Uses `ConsumerWidget` with `ref.watch(gameByIdStreamProvider(gameId))` to access data
+  - Uses `AsyncValue.when()` to handle different states:
+    - Loading state: Shows `LoadingIndicator`
+    - Error state: Shows `ErrorDisplayWidget` with error message
+    - Empty state: Shows `EmptyStateWidget` when game not found
 - **Logo Display**: Supports both SVG and image formats with proper error handling
 
 **Components:**
 - `GameDetailScreen` - Main detail screen widget
 - Various helper methods for building different sections of game information
 
-## Implementation Summary
 
-### Core Features Implemented
-
-✅ **Games List Screen**
-- Displays today's games with real-time updates
-- Shows team names, scores, game status, and start time
-- Games sorted by start time
-- Team logos displayed (SVG and image support)
-- Click navigation to detail screen
-
-✅ **Game Detail Screen**
-- Comprehensive display of all game and team data fields
-- Real-time updates for live score changes
-- Team logos, odds, and all metadata displayed
-- Proper handling of optional/missing fields
-
-✅ **Real-time Data Synchronization**
-- All data from Firestore using streams (`.snapshots()`)
-- Automatic UI updates when scores or game status changes
-- No manual refresh required
-
-✅ **State Management**
-- Loading states with `LoadingIndicator`
-- Error states with `ErrorDisplayWidget` (includes retry functionality)
-- Empty states with `EmptyStateWidget`
-- Graceful handling of missing/null fields (no crashes)
-
-✅ **UI Enhancements**
-- Team logos with SVG support (`flutter_svg` package)
-- Clear visual distinction between home and away teams
-- Status badges with color coding
-- Responsive card-based layout
-
-### Technical Implementation
-
-- **Data Models**: Complete type-safe models with null safety
-- **Firestore Integration**: Real-time streams for live updates
-- **Error Handling**: Try-catch blocks and null checks throughout
-- **Time Zone Support**: Local timezone display with UTC conversion for queries
-- **SVG Support**: Added `flutter_svg` package for NHL logo display

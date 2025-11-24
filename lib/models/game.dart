@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'game_status.dart';
 import 'team.dart';
 
-/// Game model representing a single NHL game
+/// NHL game model
 class Game {
   final int gameId;
   final Team homeTeam;
@@ -58,7 +58,7 @@ class Game {
     this.venueUTCOffset,
   });
 
-  /// Create Game from Firestore document snapshot
+  /// Create Game from Firestore snapshot
   factory Game.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data();
     if (data == null) {
@@ -68,7 +68,7 @@ class Game {
     return Game.fromMap(data);
   }
 
-  /// Create Game from Firestore document data map
+  /// Create Game from Firestore data map
   factory Game.fromMap(Map<String, dynamic> data) {
     return Game(
       gameId: data['gameId'] as int? ?? 0,
@@ -129,7 +129,7 @@ class Game {
     );
   }
 
-  /// Convert Game to Firestore document data
+  /// Convert Game to Firestore data
   Map<String, dynamic> toFirestore() {
     return {
       'gameId': gameId,
@@ -283,7 +283,7 @@ class Venue {
   }
 }
 
-/// Winning player model (for goal scorer and goalie)
+/// Winning player model (goal scorer/goalie)
 class WinningPlayer {
   final String? firstInitial;
   final String? lastName;

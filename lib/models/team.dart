@@ -1,4 +1,4 @@
-/// Team information model
+/// Team model
 class Team {
   final String abbrev;
   final int id;
@@ -28,7 +28,7 @@ class Team {
     this.odds,
   });
 
-  /// Create Team from Firestore document data
+  /// Create Team from Firestore data
   factory Team.fromFirestore(Map<String, dynamic>? data) {
     if (data == null) {
       throw ArgumentError('Team data cannot be null');
@@ -70,7 +70,7 @@ class Team {
     );
   }
 
-  /// Convert Team to Firestore document data
+  /// Convert Team to Firestore data
   Map<String, dynamic> toFirestore() {
     return {
       'abbrev': abbrev,
@@ -90,11 +90,10 @@ class Team {
   }
 }
 
-/// Place name model
-/// Note: Data may contain multiple languages, but UI only displays English (default)
+/// Place name model (UI displays English only)
 class PlaceName {
-  final String name; // English name (from 'default' field)
-  final String? fr; // French name (optional, stored but not used in UI)
+  final String name; // English name
+  final String? fr; // French name (optional)
 
   PlaceName({required this.name, this.fr});
 

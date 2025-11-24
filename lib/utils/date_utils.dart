@@ -1,12 +1,12 @@
 /// Date utility functions
 class DateUtils {
-  /// Get today's date string in YYYY-MM-DD format (local timezone)
+  /// Get today's date string (YYYY-MM-DD, local timezone)
   static String getTodayDateString() {
     final now = DateTime.now();
     return '${now.year}-${_padZero(now.month)}-${_padZero(now.day)}';
   }
 
-  /// Extract date string (YYYY-MM-DD) from ISO 8601 timestamp string (local timezone)
+  /// Extract date string (YYYY-MM-DD) from ISO timestamp (local timezone)
   static String? extractDateFromIsoString(String? isoString) {
     if (isoString == null || isoString.isEmpty) {
       return null;
@@ -21,21 +21,21 @@ class DateUtils {
     }
   }
 
-  /// Check if an ISO 8601 timestamp string is today (local timezone)
+  /// Check if ISO timestamp is today (local timezone)
   static bool isToday(String? isoString) {
     if (isoString == null) return false;
     final dateString = extractDateFromIsoString(isoString);
     return dateString == getTodayDateString();
   }
 
-  /// Get start of today in local timezone (converted to UTC for Firestore queries)
+  /// Get start of today (local timezone, converted to UTC for Firestore)
   static DateTime getStartOfTodayUtc() {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
     return startOfDay.toUtc();
   }
 
-  /// Get end of today in local timezone (converted to UTC for Firestore queries)
+  /// Get end of today (local timezone, converted to UTC for Firestore)
   static DateTime getEndOfTodayUtc() {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
