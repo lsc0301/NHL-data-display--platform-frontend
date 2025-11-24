@@ -299,4 +299,29 @@ The project uses Riverpod for state management, providing reactive data streams 
 - `filteredGamesProvider` - Provider that applies selected filter to game list
 - Real-time filtering: Updates automatically when filter changes or game status updates
 
+## Part 3 - Team Detail Page
 
+Team detail page implementation to display team information, season record, and recent games.
+
+### Team Record Model (`lib/models/team_record.dart`)
+
+**Fields:**
+- `wins` (int) - Number of wins
+- `losses` (int) - Number of regulation losses
+- `ot` (int) - Number of overtime/shootout losses
+- `points` (int) - Total points (wins * 2 + ot, following NHL scoring rules)
+- `gamesPlayed` (int) - Total games played
+
+**Methods:**
+- `fromGames(List<Game> games, int teamId)` - Factory method that calculates team record from a list of games
+  - Only counts final games (`status == final_`)
+  - Compares scores to determine wins/losses
+  - Identifies OT losses using `gameOutcome.lastPeriodType` or `periodDescriptor.periodType`
+  - Calculates points according to NHL rules (2 points for win, 1 point for OT loss)
+- `recordString` - Returns formatted record string (e.g., "30-20-5")
+- `winPercentage` - Calculates win percentage
+
+**Features:**
+- Handles null scores gracefully
+- Identifies overtime and shootout losses correctly
+- Follows NHL scoring system (2-1-0 point system)
